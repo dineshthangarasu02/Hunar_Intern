@@ -1,0 +1,139 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+class Account {
+    private String accountNumber;
+    private int pin;
+    private double balance;
+
+    public Account(String accountNumber, int pin, double balance) {
+        this.accountNumber = accountNumber;
+        this.pin = pin;
+        this.balance = balance;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public int getPin() {
+        return pin;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void deposit(double amount) {
+        balance += amount;
+    }
+
+    public boolean withdraw(double amount) {
+        if (amount > balance) {
+            return false; // Insufficient funds
+        }
+        balance -= amount;
+        return true;
+    }
+}
+
+class ATM {
+    private Map<String, Account> accounts;
+
+    public ATM() {
+        this.accounts = new HashMap<>();
+        // Initialize some dummy accounts
+        accounts.put("123456", new Account("123456", 1234, 1000));
+        accounts.put("789012", new Account("789012", 5678, 500));
+    }
+
+    public boolean authenticate(String accountNumber, int pin) {
+        Account account = accounts.get(accountNumber);
+        return account != null && account.getPin() == pin;
+    }
+
+    public double checkBalance(String accountNumber) {
+        Account account = accounts.get(accountNumber);
+        return account != null ? account.getBalance() : -1; // Account not found
+    }
+
+    public boolean deposit(String accountNumber, double amount) {
+        Account account = accounts.get(accountNumber);
+        if (account != null) {
+            account.deposit(amount);
+            return true;
+        }
+        return false; // Account not found
+    }
+
+    public boolean withdraw(String accountNumber, double amount) {
+        Account account = accounts.get(accountNumber);
+        if (account != null) {
+            return account.withdraw(amount);
+        }
+        return false; // Account not found
+    }
+}
+
+public class atm_task {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        ATM atm = new ATM();
+
+        System.out.println("Welcome to the ATM");
+        System.out.print("Enter your account number: ");
+        String accountNumber = scanner.nextLine();
+        System.out.print("Enter your PIN: ");
+        int pin = scanner.nextInt();
+
+        if (atm.authenticate(accountNumber, pin)) {
+            System.out.println("Authentication successful");
+            int choice;
+            do {
+                System.out.println("\nMain Menu:");
+                System.out.println("1. Check Balance");
+                System.out.println("2. Deposit");
+                System.out.println("3. Withdraw");
+                System.out.println("4. Exit");
+                System.out.print("Enter your choice: ");
+                choice = scanner.nextInt();
+                switch (choice) {
+                    case 1:
+                        double balance = atm.checkBalance(accountNumber);
+                        if (balance >= 0) {
+                            System.out.println("Your balance: $" + balance);
+                        } else {
+                            System.out.println("Account not found");
+                        }
+                        break;
+                    case 2:
+                        System.out.print("Enter deposit amount: $");
+                        double depositAmount = scanner.nextDouble();
+                        if (atm.deposit(accountNumber, depositAmount)) {
+                            System.out.println("Deposit successful");
+                        } else {
+                            System.out.println("Account not found");
+                        }
+                        break;
+                    case 3:
+                        System.out.print("Enter withdrawal amount: $");
+                        double withdrawalAmount = scanner.nextDouble();
+                        if (atm.withdraw(accountNumber, withdrawalAmount)) {
+                            System.out.println("Withdrawal successful");
+                        } else {
+                            System.out.println("Insufficient funds");
+                        }
+                        break;
+                    case 4:
+                        System.out.println("Exiting...");
+                        break;
+                    default:
+                        System.out.println("Invalid choice");
+                }
+            } while (choice != 4);
+        } else {
+            System.out.println("Authentication failed. Invalid account number or PIN.");
+        }
+    }
+}
